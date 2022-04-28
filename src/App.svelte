@@ -40,6 +40,7 @@
 
 	function fillTable(db, t) {
 		//console.log(db);
+		
 		let tbody = document.getElementById('tbody');
 		tbody.innerHTML = '';
 		let legend1 = document.getElementById('chart_legend');
