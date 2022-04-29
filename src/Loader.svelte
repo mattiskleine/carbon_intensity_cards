@@ -6,6 +6,7 @@
     <div class="ring" id=ring1></div>
     <div class="ring" id=ring2></div>
     <div class="ring" id=ring3></div>
+    <div id="text">loading database</div>
 </div>
 
 <style>
@@ -51,6 +52,14 @@
         height: 100%;
         border-color: #92A9BD;
         border-left-color: transparent;
+    }
+
+    #text {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        font-size: 1.1vw;
+        bottom: -4vw;
     }
 
     @keyframes spinning {
