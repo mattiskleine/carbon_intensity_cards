@@ -1,4 +1,5 @@
 <script>
+	import Loader from './Loader.svelte';
 
 	let database;
 	function getJSON(url) {
@@ -78,7 +79,7 @@
 			});
 			row.addEventListener('click', ()=> {
 				regionName = db.data[t].regions[i].shortname;
-				carbonIntensity = db.data[t].regions[i].regionid;
+				carbonIntensity = db.data[t].regions[i].intensity.forecast;
 				document.getElementById('carbon_intensity').style.color = getColor(db.data[t].regions[i].intensity.index);
 				document.getElementById('card').style.transform = 'scale(1)';
 				legend1.innerHTML = '';
@@ -128,29 +129,36 @@
 				data2.datasets[0].data = currentData2;
 				sourceregChart.update();
 
+				window.addEventListener('click', watchCard);
 			});
 		}
 		
 		restyle();
 	}
 
+	let loaderSpinnerStyle;
 	function restyle() {
+		loaderSpinnerStyle = `
+				transform: scale(0);
+			`;
+
 		const style = document.createElement('style');
 		style.innerHTML = `
 			#table {
-				box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-				border-radius: 40px;
+				box-shadow: 0 0 0.8vw rgba(0, 0, 0, 0.3);
+				border-radius: 3vw;
+				font-size: 1.1vw;
 			}
 			td {
-				line-height: 40px;
+				line-height: 3vw;
 				text-align: center;
 				cursor: pointer;
 			}
 			tr:last-child td:first-child {
-				border-radius: 0 0 0 40px;
+				border-radius: 0 0 0 3vw;
 			}
 			tr:last-child td:last-child {
-				border-radius: 0 0 40px 0;
+				border-radius: 0 0 3vw 0;
 			}
 			td:last-child {
 				font-weight: 600;
@@ -204,8 +212,22 @@
 		return color;
 	}
 
+	let cardCounter = 0;
+	function watchCard(e) {
+		let card = document.getElementById('card').getBoundingClientRect();
+		let table = document.getElementById('table').getBoundingClientRect();
+
+		if (cardCounter > 0) {
+			if ((e.clientX < card.left || e.clientX > card.right || e.clientY < card.top || e.clientY > card.bottom) && (e.clientX < table.left || e.clientX > table.right || e.clientY < table.top || e.clientY > table.bottom)) {
+				closeCard();
+			}
+		} else cardCounter++;
+	}
+
 	function closeCard() {
 		document.getElementById('card').style.transform = 'scale(0)';
+		window.removeEventListener('click', watchCard);
+		cardCounter = 0;
 	}
 
 	let regionName = 'England';
@@ -316,6 +338,7 @@
 
 
 
+
 <main>
 	<h1>Regional Carbon Intensity</h1>
 	<select id="time_selector" on:change={setTimeframe}>
@@ -331,6 +354,7 @@
 		</thead>
 		<tbody id="tbody"></tbody>
 	</table>
+	<Loader styleSpinner={loaderSpinnerStyle}/>
 	<div id="card">
 		<div id="region_name">{regionName}</div>
 		<div id="cci">current carbon intensity</div>
@@ -359,12 +383,12 @@
 <style>
 
 	main {
-		padding-bottom: 50px;
+		padding-bottom: 4vw;
 	}
 
 	h1 {
 		color: #666666;
-		font-size: 4em;
+		font-size: 4vw;
 		font-weight: 100;
 		text-align: center;
 	}
@@ -373,46 +397,54 @@
 		margin-left: 50vw;
 		transform: translateX(-50%);
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-		border-radius: 100px;
+		border-radius: 10vw;
 		border: 2px solid #444444;
 		color: #444444;
-		margin-bottom: 20px;
+		margin-bottom: 2vw;
 		font-size: 1vw;
-		padding: 10px 15px;
+		padding: 0.8vw 1vw;
+		appearance: none;
+		cursor: pointer;
 	}
+	#time_selector:hover {
+		background-color: #eeeeee;
+	}
+	#time_selector:focus {
+		outline: 0;
+ 	}
 
 	#table {
 		margin-left: 20vw;
 		width: 60vw;
 		border-collapse: collapse;
-		margin-bottom: 100px;
+		font-size: 1.1vw;
 	}
 
 	th {
-		background-color: #444444;
+		background-color: #34576e;
 		color: #ffffff;
-		line-height: 40px;
+		line-height: 3vw;
 	}
 
 	th:first-child {
-  		border-radius: 40px 0 0 0;
+  		border-radius: 3vw 0 0 0;
 		width: 50%;
 	}
 
 	th:last-child {
-  		border-radius: 0 40px 0 0;
+  		border-radius: 0 3vw 0 0;
 		  width: 22%;
 	}
 
 	#card {
 		position: fixed;
-		top: 100px;
+		top: 7vw;
 		left: 15vw;
 		width: 70vw;
 		height: 35vw;
 		background-color: #ffffff;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-		border-radius: 40px;
+		box-shadow: 0 0 0.8vw rgba(0, 0, 0, 0.3);
+		border-radius: 3vw;
 		font-weight: 100;
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 		transform: scale(0);
@@ -502,6 +534,7 @@
 		top: 25.5vw;
 		left: 4vw;
 		transform: translateY(-50%);
+		font-size: 1.1vw;
 	}
 
 	#chart2_container {
@@ -521,6 +554,6 @@
 		top: 25.5vw;
 		left: calc(55% + 14vw);
 		transform: translateY(-50%);
+		font-size: 1.1vw;
 	}
-
 </style>
